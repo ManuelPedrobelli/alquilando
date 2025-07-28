@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: alquilando
+    env: docker
+    repo: https://github.com/ManuelPedrobelli/alquilando
+    branch: main
+    rootDir: AlquileresApp.UI
