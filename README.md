@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AlquileresApp
 
 Aplicación desarrollada en .NET que gestiona alquileres. Este proyecto sigue una arquitectura modular separando la lógica de negocio, el acceso a datos y la capa de presentación (consola o API).
@@ -18,3 +19,6 @@ Aplicación desarrollada en .NET que gestiona alquileres. Este proyecto sigue un
    ```bash
    git clone https://github.com/tu-usuario/AlquileresApp.git
    cd AlquileresApp
+=======
+# alquilando
+>>>>>>> 879eb3c711791f9cad48ed1e350799a02f4078c6
