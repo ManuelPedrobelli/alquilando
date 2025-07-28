@@ -1,7 +1,9 @@
 services:
   - type: web
-    name: alquilando
+    name: alquileresapp
     env: docker
-    repo: https://github.com/ManuelPedrobelli/alquilando
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
     branch: main
-    rootDir: AlquileresApp.UI
+    healthCheckPath: /
