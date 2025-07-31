@@ -28,7 +28,16 @@ var builder = WebApplication.CreateBuilder(args);
 var dbFolder = Path.Combine(AppContext.BaseDirectory, "Data");
 Directory.CreateDirectory(dbFolder); // Asegura que la carpeta exista
 var dbPath = Path.Combine(dbFolder, "alquilando.db");
-builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Data Source={dbPath}";
+
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    var dbPath = "/tmp/alquilando.db";
+    connectionString = $"Data Source={dbPath}";
+}
+
+builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+
 
 
 // Add services to the container.
