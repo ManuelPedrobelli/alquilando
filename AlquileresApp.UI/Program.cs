@@ -1,215 +1,47 @@
-using AlquileresApp.UI.Components;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using AlquileresApp.Data;
-using AlquileresApp.Core.CasosDeUso.Usuario;
-using AlquileresApp.Core.CasosDeUso.Administrador;
-using AlquileresApp.Core.CasosDeUso.Propiedad;
-
-using AlquileresApp.Core.Interfaces;
-using AlquileresApp.Core.Validadores;
-using AlquileresApp.Core.Servicios;
 using Microsoft.EntityFrameworkCore;
 using AlquileresApp.Core.Entidades;
-using AlquileresApp.Core.CasosDeUso.Imagen;
-using AlquileresApp.Core.CasosDeUso.Reserva;
-using AlquileresApp.Core.CasosDeUso.Tarjeta;
-using AlquileresApp.Core.CasosDeUso.Comentario;
-using AlquileresApp.Core.CasosDeUso.Calificacion;
-using AlquileresApp.Core;
-using Microsoft.AspNetCore.Components.Authorization;
-using AlquileresApp.Core.CasosDeUso.Promocion;
-
-using AlquileresApp.Core.CasosDeUso.PreguntasFrecuentes;
-using AlquileresApp.Core.CasosDeUso.ContactarAdmin;
+using AlquileresApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// RUTA ABSOLUTA PARA ALQUILANDO.DB
-var dbPath = Path.Combine(AppContext.BaseDirectory, "alquilando.db");
+// Crear ruta a la base de datos
+var dbFolder = Path.Combine(AppContext.BaseDirectory, "Data");
+Directory.CreateDirectory(dbFolder); // Asegura que la carpeta exista
+var dbPath = Path.Combine(dbFolder, "alquilando.db");
+
+// Configurar la conexión a SQLite
 builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Data Source={dbPath}";
 
-// Add services to the container.
+// Agregar servicios
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddRazorPages();
-builder.Services.AddControllers();
-
-builder.Services.AddServerSideBlazor(options =>
-{
-    options.DetailedErrors = true;
-    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(3);
-});
-
-builder.Services.AddCascadingAuthenticationState();
-
-// Configurar DbContext
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<AlquileresDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// NO obligues HTTPS en Docker/producción
-// builder.WebHost.UseUrls("https://localhost:7234", "http://localhost:5234");
-
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Login";
-        options.LogoutPath = "/Logout";
-        options.AccessDeniedPath = "/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromHours(1);
-        options.SlidingExpiration = true;
-    });
-
-builder.Services.AddAuthorization();
-
-// Registro de dependencias (sin cambios)
-builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
-builder.Services.AddScoped<CasoDeUsoRegistrarUsuario>();
-builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
-builder.Services.AddScoped<IServicioHashPassword, ServicioHashPassword>();
-builder.Services.AddAuthorizationCore();
-builder.Services.AddScoped<ServicioSesion>();
-builder.Services.AddScoped<ServicioAutenticacion>();
-builder.Services.AddScoped<ServicioCookies>();
-builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
-builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
-builder.Services.AddScoped<CasoDeUsoIniciarSesion>();
-builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
-builder.Services.AddScoped<IImagenesRepositorio, ImagenesRepositorio>();
-builder.Services.AddScoped<IPropiedadValidador, PropiedadValidador>();
-builder.Services.AddScoped<IReservaRepositorio, ReservaRepositorio>();
-builder.Services.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
-builder.Services.AddScoped<CasoDeUsoListarPropiedades>();
-builder.Services.AddScoped<CasoDeUsoListarPropiedadesDestacadas>();
-builder.Services.AddScoped<CasoDeUsoAgregarPropiedad>();
-builder.Services.AddScoped<CasoDeUsoCargarImagen>();
-builder.Services.AddScoped<CasoDeUsoModificarPropiedad>();
-builder.Services.AddScoped<CasoDeUsoCalcularPrecioConPromocion>();
-builder.Services.AddScoped<CasoDeUsoEliminarPropiedad>();
-builder.Services.AddScoped<CasoDeUsoObtenerPropiedades>();
-builder.Services.AddScoped<CasoDeUsoMostrarImagenes>();
-builder.Services.AddScoped<CasoDeUsoEliminarImagen>();
-builder.Services.AddScoped<CasoDeUsoCrearReserva>();
-builder.Services.AddScoped<CasoDeUsoListarPropiedadesFiltrado>();
-builder.Services.AddScoped<ITarjetaRepositorio, TarjetaRepositorio>();
-builder.Services.AddScoped<IFechaReservaValidador, FechaReservaValidador>();
-builder.Services.AddScoped<ITarjetaValidador, TarjetaValidador>();
-builder.Services.AddScoped<CasoDeUsoRegistrarTarjeta>();
-builder.Services.AddScoped<CasoDeUsoObtenerPropiedad>();
-builder.Services.AddScoped<CasoDeUsoListarMisReservas>();
-builder.Services.AddScoped<CasoDeUsoCancelarReserva>();
-builder.Services.AddScoped<CasoDeUsoModificarReserva>();
-builder.Services.AddScoped<CasoDeUsoObtenerReserva>();
-builder.Services.AddScoped<CasoDeUsoRegistrarEncargado>(); 
-builder.Services.AddScoped<CasoDeUsoListarEncargados>();
-builder.Services.AddScoped<CasoDeUsoEliminarEncargado>();
-builder.Services.AddTransient<INotificadorEmail>(_ =>
-    new NotificadorEmail("reservaenalquilando@gmail.com", "fxsl hsck basy pamv"));
-
-builder.Services.AddScoped<CasoDeUsoVisualizarReserva>();
-builder.Services.AddScoped<CasoDeUsoVisualizarTarjeta>();
-builder.Services.AddScoped<CasoDeUsoEliminarTarjeta>();
-builder.Services.AddScoped<CasoDeUsoModificarTarjeta>();
-builder.Services.AddScoped<ICasoDeUsoVerReserva, CasoDeUsoVerReserva>();
-builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
-builder.Services.AddScoped<CasoDeUsoListarReservasAdm>();
-builder.Services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
-builder.Services.AddScoped<CasoDeUsoAgregarComentario>();
-builder.Services.AddScoped<CasoDeUsoListarComentarios>();
-builder.Services.AddScoped<CasoDeUsoOcultarComentario>();
-builder.Services.AddScoped<CasoDeUsoRegistrarCheckout>();
-builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
-builder.Services.AddScoped<CasoDeUsoAgregarCalificacion>();
-builder.Services.AddScoped<CasoDeUsoMostrarCalificacion>();
-builder.Services.AddScoped<CasoDeUsoMarcarPropiedadComoNoHabitable>();
-
-builder.Services.AddAuthentication().AddScheme<CustomOptions, ServicioAutorizacion>("CustomAuth", _ => { });
-builder.Services.AddScoped<CasoDeUsoEliminarPromocion>();
-builder.Services.AddScoped<IPromocionRepositorio, PromocionRepositorio>();
-builder.Services.AddScoped<CasoDeUsoCrearPromocion>();
-builder.Services.AddScoped<CasoDeUsoListarPromociones>();
-builder.Services.AddScoped<CasoDeUsoModificarPromocion>();
-builder.Services.AddScoped<CasoDeUsoObtenerPromocion>();
-builder.Services.AddScoped<CasoDeUsoListarPromocionesActivas>(); 
-
-builder.Services.AddScoped<IPreguntasFrecuentesRepositorio, PreguntaFrecuenteRepositorio>();
-builder.Services.AddScoped<CasoDeUsoMostrarPreguntasFrecuentes>();
-builder.Services.AddScoped<CasoDeUsoCrearPreguntaFrecuente>();
-builder.Services.AddScoped<CasoDeUsoModificarPreguntaFrecuente>();
-builder.Services.AddScoped<CasoDeUsoEliminarPreguntaFrecuente>();
-builder.Services.AddScoped<CasoDeUsoContactarAdmin>();
-builder.Services.AddResponseCompression();
+builder.Services.AddScoped<DbContext, AlquileresDbContext>();
+builder.Services.AddScoped<DbContextInitializer>();
 
 var app = builder.Build();
-app.UseResponseCompression();
 
-// Inicialización y Seed de la base de datos
+// Inicializar la base de datos
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    try
-    {
-        var dbContext = services.GetRequiredService<AppDbContext>();
-        Console.WriteLine("Asegurando que la base de datos existe...");
-        dbContext.Database.EnsureCreated();
-        Console.WriteLine("Base de datos creada o verificada.");
-
-        Console.WriteLine("Inicializando datos de prueba...");
-        SeedData.Initialize(dbContext);
-        Console.WriteLine("Datos de prueba inicializados.");
-
-        if (!dbContext.Usuarios.Any())
-        {
-            var hashService = services.GetRequiredService<IServicioHashPassword>();
-            var hashedPassword = hashService.HashPassword("Password123!");
-            var testUser = new Administrador("Admin", "User", "admin@gmail.com", hashedPassword);
-            dbContext.Usuarios.Add(testUser);
-            dbContext.SaveChanges();
-            Console.WriteLine("Usuario de prueba creado.");
-        }
-        else
-        {
-            foreach (var u in dbContext.Usuarios)
-                Console.WriteLine($"Usuario existente: {u.Email}");
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error durante la inicialización: {ex.Message}");
-        Console.WriteLine(ex.StackTrace);
-        throw;
-    }
+    var initializer = scope.ServiceProvider.GetRequiredService<DbContextInitializer>();
+    await initializer.InitializeAsync();
 }
 
-// Middleware y endpoints
+// Configurar el pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
-else
-{
-    app.UseDeveloperExceptionPage();
-}
 
 app.UseHttpsRedirection();
-app.UseDefaultFiles();
 app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
 app.UseAntiforgery();
+app.MapRazorComponents<App>()
+   .AddInteractiveServerRenderMode();
 
-app.MapRazorPages();
-app.MapControllers();
-app.MapBlazorHub();
-
-app.MapGet("/Logout", async (HttpContext context) =>
-{
-    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    return Results.Redirect("/");
-});
-
-app.MapFallbackToPage("/_Host");
 app.Run();
