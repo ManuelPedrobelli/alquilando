@@ -1,29 +1,34 @@
-# Etapa 1: Build
+# ============================
+# 🛠️ Etapa de build
+# ============================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copiar todo el proyecto
+# Copiamos todo el proyecto
 COPY . ./
 
-# Restaurar dependencias
+# Restauramos paquetes
 RUN dotnet restore
 
-# Publicar la app (modo Release)
-RUN dotnet publish -c Release -o /out
+# Publicamos en modo Release
+RUN dotnet publish -c Release -o /app/publish
 
-# Crear carpeta y copiar la base de datos
-RUN mkdir -p /out/Data
-COPY AlquileresApp.Data/alquilando.db /out/Data/alquilando.db
-
-# Etapa 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# ============================
+# 🚀 Etapa de runtime
+# ============================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Copiar desde el build
-COPY --from=build /out ./   
+# Copiamos los artefactos publicados desde la etapa de build
+COPY --from=build /app/publish ./
 
-# Exponer el puerto (Render usa 10000 automáticamente)
-EXPOSE 80
+# Aseguramos que la carpeta 'Data' exista en el entorno de runtime
+RUN mkdir -p /app/Data
 
-# Comando de arranque
+# 🔁 Configura esta ruta también en tu appsettings.json:
+# "ConnectionStrings": {
+#   "DefaultConnection": "Data Source=Data/alquilando.db"
+# }
+
+# Iniciamos la aplicación
 ENTRYPOINT ["dotnet", "AlquileresApp.UI.dll"]
