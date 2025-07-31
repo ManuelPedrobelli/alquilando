@@ -9,8 +9,11 @@ COPY . ./
 RUN dotnet restore
 
 # Publicar la app (modo Release)
-RUN mkdir -p /app/AlquileresApp.Data
 RUN dotnet publish -c Release -o /out
+
+# Crear carpeta y copiar la base de datos
+RUN mkdir -p /out/Data
+COPY AlquileresApp.Data/alquilando.db /out/Data/alquilando.db
 
 # Etapa 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

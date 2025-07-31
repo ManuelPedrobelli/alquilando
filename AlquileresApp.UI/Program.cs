@@ -25,13 +25,14 @@ using AlquileresApp.Core.CasosDeUso.ContactarAdmin;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// RUTA ABSOLUTA PARA ALQUILANDO.DB
+var dbPath = Path.Combine(AppContext.BaseDirectory, "alquilando.db");
+builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Data Source={dbPath}";
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Agregar soporte para páginas Razor
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
@@ -47,10 +48,9 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure HTTPS
-builder.WebHost.UseUrls("https://localhost:7234", "http://localhost:5234");
+// NO obligues HTTPS en Docker/producción
+// builder.WebHost.UseUrls("https://localhost:7234", "http://localhost:5234");
 
-// Configurar autenticación
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
-// Registrar servicios
+// Registro de dependencias (sin cambios)
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<CasoDeUsoRegistrarUsuario>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
@@ -74,7 +74,6 @@ builder.Services.AddScoped<ServicioAutenticacion>();
 builder.Services.AddScoped<ServicioCookies>();
 builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
-builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<CasoDeUsoIniciarSesion>();
 builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
 builder.Services.AddScoped<IImagenesRepositorio, ImagenesRepositorio>();
@@ -91,7 +90,6 @@ builder.Services.AddScoped<CasoDeUsoEliminarPropiedad>();
 builder.Services.AddScoped<CasoDeUsoObtenerPropiedades>();
 builder.Services.AddScoped<CasoDeUsoMostrarImagenes>();
 builder.Services.AddScoped<CasoDeUsoEliminarImagen>();
-builder.Services.AddScoped<CasoDeUsoEliminarPropiedad>();
 builder.Services.AddScoped<CasoDeUsoCrearReserva>();
 builder.Services.AddScoped<CasoDeUsoListarPropiedadesFiltrado>();
 builder.Services.AddScoped<ITarjetaRepositorio, TarjetaRepositorio>();
@@ -106,12 +104,8 @@ builder.Services.AddScoped<CasoDeUsoObtenerReserva>();
 builder.Services.AddScoped<CasoDeUsoRegistrarEncargado>(); 
 builder.Services.AddScoped<CasoDeUsoListarEncargados>();
 builder.Services.AddScoped<CasoDeUsoEliminarEncargado>();
-builder.Services.AddTransient<INotificadorEmail>(provider =>
-    new NotificadorEmail(
-        "reservaenalquilando@gmail.com",
-        "fxsl hsck basy pamv"
-    )
-);
+builder.Services.AddTransient<INotificadorEmail>(_ =>
+    new NotificadorEmail("reservaenalquilando@gmail.com", "fxsl hsck basy pamv"));
 
 builder.Services.AddScoped<CasoDeUsoVisualizarReserva>();
 builder.Services.AddScoped<CasoDeUsoVisualizarTarjeta>();
@@ -130,8 +124,7 @@ builder.Services.AddScoped<CasoDeUsoAgregarCalificacion>();
 builder.Services.AddScoped<CasoDeUsoMostrarCalificacion>();
 builder.Services.AddScoped<CasoDeUsoMarcarPropiedadComoNoHabitable>();
 
-
-builder.Services.AddAuthentication().AddScheme<CustomOptions, ServicioAutorizacion>("CustomAuth", options => { });
+builder.Services.AddAuthentication().AddScheme<CustomOptions, ServicioAutorizacion>("CustomAuth", _ => { });
 builder.Services.AddScoped<CasoDeUsoEliminarPromocion>();
 builder.Services.AddScoped<IPromocionRepositorio, PromocionRepositorio>();
 builder.Services.AddScoped<CasoDeUsoCrearPromocion>();
@@ -150,7 +143,8 @@ builder.Services.AddResponseCompression();
 
 var app = builder.Build();
 app.UseResponseCompression();
-// Initialize Database and Seed Data
+
+// Inicialización y Seed de la base de datos
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -160,49 +154,35 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("Asegurando que la base de datos existe...");
         dbContext.Database.EnsureCreated();
         Console.WriteLine("Base de datos creada o verificada.");
-         // Inicializar datos de prueba
+
         Console.WriteLine("Inicializando datos de prueba...");
         SeedData.Initialize(dbContext);
-        Console.WriteLine("Datos de prueba inicializados correctamente.");
-        // Add test user if no users exist
+        Console.WriteLine("Datos de prueba inicializados.");
+
         if (!dbContext.Usuarios.Any())
         {
-
-            Console.WriteLine("No hay usuarios en la base de datos. Creando usuario de prueba...");
             var hashService = services.GetRequiredService<IServicioHashPassword>();
             var hashedPassword = hashService.HashPassword("Password123!");
-            Console.WriteLine($"Contraseña hasheada para usuario de prueba: {hashedPassword}");
-            
-            var testUser = new Administrador(
-                "Admin",
-                "User",
-                "admin@gmail.com",
-                hashedPassword
-            );
-            
+            var testUser = new Administrador("Admin", "User", "admin@gmail.com", hashedPassword);
             dbContext.Usuarios.Add(testUser);
             dbContext.SaveChanges();
-            Console.WriteLine("Usuario de prueba creado exitosamente.");
+            Console.WriteLine("Usuario de prueba creado.");
         }
         else
         {
-            Console.WriteLine("Ya existen usuarios en la base de datos.");
-            var usuarios = dbContext.Usuarios.ToList();
-            foreach (var u in usuarios)
-            {
+            foreach (var u in dbContext.Usuarios)
                 Console.WriteLine($"Usuario existente: {u.Email}");
-            }
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error durante la inicialización de la base de datos: {ex.Message}");
-        Console.WriteLine($"StackTrace: {ex.StackTrace}");
+        Console.WriteLine($"Error durante la inicialización: {ex.Message}");
+        Console.WriteLine(ex.StackTrace);
         throw;
     }
 }
 
-// Configure the HTTP request pipeline.
+// Middleware y endpoints
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -214,30 +194,22 @@ else
 }
 
 app.UseHttpsRedirection();
-
-// Configuración de archivos estáticos
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseAntiforgery();
 
-// Mapear endpoints
 app.MapRazorPages();
 app.MapControllers();
 app.MapBlazorHub();
 
-// Agregar endpoints para autenticación
 app.MapGet("/Logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Redirect("/");
 });
 
-// Importante: Este debe ser el último mapeo
 app.MapFallbackToPage("/_Host");
 app.Run();
