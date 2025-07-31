@@ -16,4 +16,3 @@ COPY --from=build-stage /app/publish ./
 
 RUN mkdir -p /app/Data
 ENTRYPOINT ["dotnet", "AlquileresApp.UI.dll"]
-

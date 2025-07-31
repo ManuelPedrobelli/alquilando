@@ -25,11 +25,11 @@ using AlquileresApp.Core.CasosDeUso.ContactarAdmin;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar la ruta de la base de datos
 var dbFolder = Path.Combine(AppContext.BaseDirectory, "Data");
 Directory.CreateDirectory(dbFolder); // Asegura que la carpeta exista
 var dbPath = Path.Combine(dbFolder, "alquilando.db");
 builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Data Source={dbPath}";
+
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -161,29 +161,26 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var dbContext = services.GetRequiredService<AppDbContext>();
-        Console.WriteLine("Asegurando que la base de datos existe...");
+        Console.WriteLine($"Asegurando que la base de datos existe en: {dbPath}");
         dbContext.Database.EnsureCreated();
         Console.WriteLine("Base de datos creada o verificada.");
-         // Inicializar datos de prueba
+        // Inicializar datos de prueba
         Console.WriteLine("Inicializando datos de prueba...");
         SeedData.Initialize(dbContext);
         Console.WriteLine("Datos de prueba inicializados correctamente.");
         // Add test user if no users exist
         if (!dbContext.Usuarios.Any())
         {
-
             Console.WriteLine("No hay usuarios en la base de datos. Creando usuario de prueba...");
             var hashService = services.GetRequiredService<IServicioHashPassword>();
             var hashedPassword = hashService.HashPassword("Password123!");
             Console.WriteLine($"Contraseña hasheada para usuario de prueba: {hashedPassword}");
-            
             var testUser = new Administrador(
                 "Admin",
                 "User",
                 "admin@gmail.com",
                 hashedPassword
             );
-            
             dbContext.Usuarios.Add(testUser);
             dbContext.SaveChanges();
             Console.WriteLine("Usuario de prueba creado exitosamente.");
@@ -200,7 +197,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error durante la inicialización de la base de datos: {ex.Message}");
+        Console.WriteLine($"Error durante la inicialización de la base de datos en: {dbPath}");
         Console.WriteLine($"StackTrace: {ex.StackTrace}");
         throw;
     }
