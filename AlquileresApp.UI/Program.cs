@@ -21,19 +21,22 @@ using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Ruta de base de datos por defecto
-var dbFolder = Path.Combine(AppContext.BaseDirectory, "Data");
-Directory.CreateDirectory(dbFolder);
-var dbPath = Path.Combine(dbFolder, "alquilando.db");
+// Usar ruta relativa dentro del contenedor para evitar problemas de permisos
+var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+Directory.CreateDirectory(dataDirectory); // Asegura que exista
 
-// Si hay variable de entorno, usar esa (ej. en Docker)
+var dbPath = Path.Combine(dataDirectory, "alquilando.db");
+
+// Permitir sobreescritura con variable de entorno (por ejemplo, en producción)
 var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
 {
-    dbPath = "/tmp/alquilando.db";
     connectionString = $"Data Source={dbPath}";
 }
+
+// Asignar al config del builder
 builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+
 
 // Componentes y servicios básicos
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
