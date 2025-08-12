@@ -15,30 +15,29 @@ using AlquileresApp.Core.CasosDeUso.Calificacion;
 using AlquileresApp.Core.CasosDeUso.Promocion;
 using AlquileresApp.Core.CasosDeUso.PreguntasFrecuentes;
 using AlquileresApp.Core.CasosDeUso.ContactarAdmin;
-using AlquileresApp.Core;
-using AlquileresApp.UI.Components;
 using Microsoft.AspNetCore.Authentication;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Usar ruta relativa dentro del contenedor para evitar problemas de permisos
-var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Data");
-Directory.CreateDirectory(dataDirectory); // Asegura que exista
+// Usar el puerto que asigna Render
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+builder.WebHost.UseUrls($"http://*:{port}");
 
-var dbPath = Path.Combine(dataDirectory, "alquilando.db");
 
-// Permitir sobreescritura con variable de entorno (por ejemplo, en producción)
+// Configuración de base de datos
+var dbFolder = Path.Combine(AppContext.BaseDirectory, "Data");
+Directory.CreateDirectory(dbFolder);
+var dbPath = Path.Combine(dbFolder, "alquilando.db");
+
 var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
 {
     connectionString = $"Data Source={dbPath}";
 }
-
-// Asignar al config del builder
 builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
 
-
-// Componentes y servicios básicos
+// Servicios base
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
@@ -64,22 +63,19 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationCore();
 
 // Inyecciones
 builder.Services.AddScoped<IServicioHashPassword, ServicioHashPassword>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
+
 builder.Services.AddScoped<ServicioAutenticacion>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
 builder.Services.AddScoped<ServicioSesion>();
 builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<ServicioCookies>();
-builder.Services.AddAuthorizationCore();
 
-// Casos de uso y repositorios
-builder.Services.AddScoped<CasoDeUsoRegistrarUsuario>();
-builder.Services.AddScoped<CasoDeUsoIniciarSesion>();
-builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
 builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
 builder.Services.AddScoped<IImagenesRepositorio, ImagenesRepositorio>();
 builder.Services.AddScoped<IPropiedadValidador, PropiedadValidador>();
@@ -92,7 +88,9 @@ builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
 builder.Services.AddScoped<IPromocionRepositorio, PromocionRepositorio>();
 builder.Services.AddScoped<IPreguntasFrecuentesRepositorio, PreguntaFrecuenteRepositorio>();
 
-// Casos de uso adicionales
+builder.Services.AddScoped<CasoDeUsoRegistrarUsuario>();
+builder.Services.AddScoped<CasoDeUsoIniciarSesion>();
+builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
 builder.Services.AddScoped<CasoDeUsoAgregarPropiedad>();
 builder.Services.AddScoped<CasoDeUsoCrearReserva>();
 builder.Services.AddScoped<CasoDeUsoRegistrarTarjeta>();
@@ -102,7 +100,6 @@ builder.Services.AddScoped<CasoDeUsoCrearPromocion>();
 builder.Services.AddScoped<CasoDeUsoMostrarPreguntasFrecuentes>();
 builder.Services.AddScoped<CasoDeUsoContactarAdmin>();
 
-// Notificador de email
 builder.Services.AddTransient<INotificadorEmail>(provider =>
     new NotificadorEmail("reservaenalquilando@gmail.com", "fxsl hsck basy pamv"));
 
@@ -111,26 +108,16 @@ builder.Services.AddResponseCompression();
 var app = builder.Build();
 app.UseResponseCompression();
 
-// Inicializar BD
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    try
-    {
-        var dbContext = services.GetRequiredService<AppDbContext>();
-        dbContext.Database.EnsureCreated();
-        SeedData.Initialize(dbContext);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error al inicializar la base de datos: {ex.Message}");
-        throw;
-    }
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.EnsureCreated();
+    SeedData.Initialize(dbContext);
 }
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 else

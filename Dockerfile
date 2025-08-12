@@ -1,18 +1,27 @@
-# Etapa de build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-stage
+# ===== Etapa de build =====
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-stage
 WORKDIR /src
-COPY . ./
+
+# Copiar archivos de solución y proyectos
+COPY *.sln ./
+COPY AlquileresApp.UI/*.csproj AlquileresApp.UI/
+COPY AlquileresApp.Data/*.csproj AlquileresApp.Data/
+COPY AlquileresApp.Core/*.csproj AlquileresApp.Core/
 
 # Restaurar dependencias
 RUN dotnet restore
 
-# Publicar solo el proyecto principal
-RUN dotnet publish AlquileresApp.UI/AlquileresApp.UI.csproj -c Release -o /app/publish
+# Copiar el resto del código
+COPY . ./
 
-# Etapa de runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Publicar en Release
+WORKDIR /src/AlquileresApp.UI
+RUN dotnet publish -c Release -o /app/publish
+
+# ===== Etapa de runtime =====
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 COPY --from=build-stage /app/publish ./
 
-RUN mkdir -p /app/Data
+
 ENTRYPOINT ["dotnet", "AlquileresApp.UI.dll"]

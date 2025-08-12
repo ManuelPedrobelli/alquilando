@@ -3,7 +3,16 @@ services:
     name: alquileresapp
     env: docker
     plan: free
-    region: oregon
-    dockerfilePath: ./Dockerfile
     branch: main
-    healthCheckPath: /
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DOTNET_RUNNING_IN_CONTAINER
+        value: "true"
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: DOTNET_CLI_TELEMETRY_OPTOUT
+        value: "1"
+      - key: ASPNETCORE_URLS
+        value: "http://+:80"
+    healthCheckPath: "/"

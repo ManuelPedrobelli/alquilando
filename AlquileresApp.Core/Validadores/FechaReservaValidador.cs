@@ -1,7 +1,7 @@
 using AlquileresApp.Core.Interfaces;
 using AlquileresApp.Core.Entidades;
 
-namespace AlquileresApp.Core;
+namespace AlquileresApp.Core.Validadores;
 public class FechaReservaValidador : IFechaReservaValidador
 {
     public void FechaValidador(DateTime fechaInicio, DateTime fechaFin) 
