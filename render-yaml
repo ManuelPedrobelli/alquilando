@@ -3,16 +3,13 @@ services:
     name: alquileresapp
     env: docker
     plan: free
-    branch: main
-    autoDeploy: true
     dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    disk:
+      name: alquileresapp-data
+      mountPath: /app/data
+      sizeGB: 1
     envVars:
-      - key: DOTNET_RUNNING_IN_CONTAINER
-        value: "true"
-      - key: DOTNET_USE_POLLING_FILE_WATCHER
-        value: "true"
-      - key: DOTNET_CLI_TELEMETRY_OPTOUT
-        value: "1"
-      - key: ASPNETCORE_URLS
-        value: "http://+:80"
-    healthCheckPath: "/"
+      - key: PORT
+        value: 10000
+
