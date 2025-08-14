@@ -15,6 +15,7 @@ using AlquileresApp.Core.CasosDeUso.Calificacion;
 using AlquileresApp.Core.CasosDeUso.Promocion;
 using AlquileresApp.Core.CasosDeUso.PreguntasFrecuentes;
 using AlquileresApp.Core.CasosDeUso.ContactarAdmin;
+using AlquileresApp.Core.CasosDeUso.Sesion;
 using Microsoft.AspNetCore.Authentication;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 
