@@ -1,14 +1,13 @@
 using AlquileresApp.Core.Entidades;
 using AlquileresApp.Core.Enumerativos;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using System;
 
 namespace AlquileresApp.Data
 {
     public class AppDbContext : DbContext
     {
-        // Constructor por defecto (opcional)
-        public AppDbContext() : base() { }
-
         // Constructor para inyección de dependencias
         public AppDbContext(DbContextOptions<AppDbContext> options) 
             : base(options) { }
@@ -26,14 +25,11 @@ namespace AlquileresApp.Data
         public DbSet<Promocion> Promociones { get; set; }
         public DbSet<PreguntaFrecuente> PreguntasFrecuentes { get; set; }
 
-        // Ya no necesitamos OnConfiguring para SQLite
-        // La configuración se hace en Program.cs con AddDbContext y UseNpgsql
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuraciones de entidades (mantener igual)
+            // Configuración TPH
             modelBuilder.Entity<Usuario>()
                 .HasDiscriminator(u => u.Rol)
                 .HasValue<Cliente>(RolUsuario.Cliente)
