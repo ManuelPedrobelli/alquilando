@@ -20,24 +20,22 @@ using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Usar el puerto que asigna Render
-var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
-builder.WebHost.UseUrls($"http://*:{port}");
+// --- Configuración de la cadena de conexión ---
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
 
-
-// Configuración de base de datos
-var dbFolder = Path.Combine(AppContext.BaseDirectory, "Data");
-Directory.CreateDirectory(dbFolder);
-var dbPath = Path.Combine(dbFolder, "alquilando.db");
-
-var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
-if (string.IsNullOrEmpty(connectionString))
+// Convertir el formato de Render (postgres://user:pass@host:5432/db) a Npgsql
+if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgres://"))
 {
-    connectionString = $"Data Source={dbPath}";
+    var uri = new Uri(connectionString);
+    var userInfo = uri.UserInfo.Split(':');
+    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SslMode=Require;Trust Server Certificate=true";
 }
-builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
 
-// Servicios base
+// --- Configuración de servicios ---
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
@@ -48,11 +46,7 @@ builder.Services.AddServerSideBlazor(options =>
 });
 builder.Services.AddCascadingAuthenticationState();
 
-// DB Context
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Autenticación
+// --- Autenticación ---
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -65,56 +59,32 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 builder.Services.AddAuthorizationCore();
 
-// Inyecciones
+// --- Inyecciones de servicios propios ---
 builder.Services.AddScoped<IServicioHashPassword, ServicioHashPassword>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
-
 builder.Services.AddScoped<ServicioAutenticacion>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
 builder.Services.AddScoped<ServicioSesion>();
 builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<ServicioCookies>();
 
-builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
-builder.Services.AddScoped<IImagenesRepositorio, ImagenesRepositorio>();
-builder.Services.AddScoped<IPropiedadValidador, PropiedadValidador>();
-builder.Services.AddScoped<IReservaRepositorio, ReservaRepositorio>();
-builder.Services.AddScoped<ITarjetaRepositorio, TarjetaRepositorio>();
-builder.Services.AddScoped<IFechaReservaValidador, FechaReservaValidador>();
-builder.Services.AddScoped<ITarjetaValidador, TarjetaValidador>();
-builder.Services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
-builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
-builder.Services.AddScoped<IPromocionRepositorio, PromocionRepositorio>();
-builder.Services.AddScoped<IPreguntasFrecuentesRepositorio, PreguntaFrecuenteRepositorio>();
-
-builder.Services.AddScoped<CasoDeUsoRegistrarUsuario>();
-builder.Services.AddScoped<CasoDeUsoIniciarSesion>();
-builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
-builder.Services.AddScoped<CasoDeUsoAgregarPropiedad>();
-builder.Services.AddScoped<CasoDeUsoCrearReserva>();
-builder.Services.AddScoped<CasoDeUsoRegistrarTarjeta>();
-builder.Services.AddScoped<CasoDeUsoAgregarComentario>();
-builder.Services.AddScoped<CasoDeUsoAgregarCalificacion>();
-builder.Services.AddScoped<CasoDeUsoCrearPromocion>();
-builder.Services.AddScoped<CasoDeUsoMostrarPreguntasFrecuentes>();
-builder.Services.AddScoped<CasoDeUsoContactarAdmin>();
-
-builder.Services.AddTransient<INotificadorEmail>(provider =>
-    new NotificadorEmail("reservaenalquilando@gmail.com", "fxsl hsck basy pamv"));
+// Agregá el resto de tus servicios e inyecciones igual que antes
+// ...
 
 builder.Services.AddResponseCompression();
 
 var app = builder.Build();
 app.UseResponseCompression();
 
+// --- Crear la base de datos si no existe ---
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated();
-    SeedData.Initialize(dbContext);
+    dbContext.Database.Migrate(); // Ejecuta migraciones automáticamente
 }
 
+// --- Middleware ---
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -143,4 +113,5 @@ app.MapGet("/Logout", async (HttpContext context) =>
 });
 
 app.MapFallbackToPage("/_Host");
+
 app.Run();
