@@ -23,8 +23,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
-
+{
+    // Toma la conexión de la variable de entorno CONNECTION_STRING
+    var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+    options.UseNpgsql(connectionString);
+});
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddRazorPages();
@@ -70,9 +73,15 @@ app.UseResponseCompression();
 // --- Crear la base de datos si no existe ---
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+/*
+using (var scope = app.Services.CreateScope())
+{
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.Migrate(); // Ejecuta migraciones automáticamente
-}
+}*/
 
 // --- Middleware ---
 if (!app.Environment.IsDevelopment())
