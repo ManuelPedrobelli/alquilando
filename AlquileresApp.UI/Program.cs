@@ -67,6 +67,8 @@ builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.Get
 builder.Services.AddScoped<ServicioSesion>();
 builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<ServicioCookies>();
+builder.Services.AddScoped<CUCerrarSesion>();
+
 
 // Agregá el resto de tus servicios e inyecciones igual que antes
 // ...
