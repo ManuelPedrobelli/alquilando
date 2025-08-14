@@ -1,7 +1,7 @@
 using System;
 using AlquileresApp.Core.Interfaces;   
 using AlquileresApp.Core.Servicios;
-namespace AlquileresApp.Core.CasosDeUso.Usuario;
+namespace AlquileresApp.Core.CasosDeUso.Usuario.CasoDeUsoCerrarSesion;
 
 public class CasoDeUsoCerrarSesion(IServicioAutenticacion servicioAutenticacion)
 {
