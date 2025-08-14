@@ -2,26 +2,26 @@ using AlquileresApp.UI.Components;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using AlquileresApp.Data;
-using AlquileresApp.Core.CasosDeUso.Usuario;
 using AlquileresApp.Core.CasosDeUso.Administrador;
+using AlquileresApp.Core.CasosDeUso.Calificacion;
+using AlquileresApp.Core.CasosDeUso.Comentario;
+using AlquileresApp.Core.CasosDeUso.ContactarAdmin;
+using AlquileresApp.Core.CasosDeUso.Imagen;
+using AlquileresApp.Core.CasosDeUso.PreguntasFrecuentes;
+using AlquileresApp.Core.CasosDeUso.Promocion;
 using AlquileresApp.Core.CasosDeUso.Propiedad;
+using AlquileresApp.Core.CasosDeUso.Reserva;
+using AlquileresApp.Core.CasosDeUso.Tarjeta;
+using AlquileresApp.Core.CasosDeUso.Usuario;
 
 using AlquileresApp.Core.Interfaces;
 using AlquileresApp.Core.Validadores;
 using AlquileresApp.Core.Servicios;
 using Microsoft.EntityFrameworkCore;
 using AlquileresApp.Core.Entidades;
-using AlquileresApp.Core.CasosDeUso.Imagen;
-using AlquileresApp.Core.CasosDeUso.Reserva;
-using AlquileresApp.Core.CasosDeUso.Tarjeta;
-using AlquileresApp.Core.CasosDeUso.Comentario;
-using AlquileresApp.Core.CasosDeUso.Calificacion;
 using AlquileresApp.Core;
 using Microsoft.AspNetCore.Components.Authorization;
-using AlquileresApp.Core.CasosDeUso.Promocion;
 
-using AlquileresApp.Core.CasosDeUso.PreguntasFrecuentes;
-using AlquileresApp.Core.CasosDeUso.ContactarAdmin;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 
@@ -67,7 +67,8 @@ builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.Get
 builder.Services.AddScoped<ServicioSesion>();
 builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<ServicioCookies>();
-builder.Services.AddScoped<CUCerrarSesion>();
+builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
+
 
 
 // Agregá el resto de tus servicios e inyecciones igual que antes
