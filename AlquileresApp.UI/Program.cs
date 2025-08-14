@@ -16,25 +16,15 @@ using AlquileresApp.Core.CasosDeUso.Promocion;
 using AlquileresApp.Core.CasosDeUso.PreguntasFrecuentes;
 using AlquileresApp.Core.CasosDeUso.ContactarAdmin;
 using Microsoft.AspNetCore.Authentication;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Configuración de la cadena de conexión ---
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
 
-// Convertir el formato de Render (postgres://user:pass@host:5432/db) a Npgsql
-if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgres://"))
-{
-    var uri = new Uri(connectionString);
-    var userInfo = uri.UserInfo.Split(':');
-    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SslMode=Require;Trust Server Certificate=true";
-}
-
-// --- Configuración de servicios ---
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddRazorPages();

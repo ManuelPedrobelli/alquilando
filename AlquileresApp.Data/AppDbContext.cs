@@ -1,25 +1,17 @@
 using AlquileresApp.Core.Entidades;
-using AlquileresApp.Core.Enumerativos; 
+using AlquileresApp.Core.Enumerativos;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
 
 namespace AlquileresApp.Data
 {
     public class AppDbContext : DbContext
     {
-        private static string DbPath => 
-            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "AlquileresApp.Data", "Alquilando.db"));
+        // Constructor por defecto (opcional)
+        public AppDbContext() : base() { }
 
-        // Constructor por defecto para pruebas y consola
-        public AppDbContext() : base()
-        {
-        }
-
-        // Constructor requerido para inyección de dependencias y AddDbContext
+        // Constructor para inyección de dependencias
         public AppDbContext(DbContextOptions<AppDbContext> options) 
-            : base(options)
-        {
-        }
+            : base(options) { }
 
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
@@ -34,26 +26,20 @@ namespace AlquileresApp.Data
         public DbSet<Promocion> Promociones { get; set; }
         public DbSet<PreguntaFrecuente> PreguntasFrecuentes { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // Solo configurar si no está configurado desde afuera (evitar conflicto con AddDbContext)
-            var path = DbPath;
-            Console.WriteLine($"Configurando base de datos en: {path}");
-            optionsBuilder.UseSqlite($"Data Source={path}");
-        }
+        // Ya no necesitamos OnConfiguring para SQLite
+        // La configuración se hace en Program.cs con AddDbContext y UseNpgsql
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuración TPH
+            // Configuraciones de entidades (mantener igual)
             modelBuilder.Entity<Usuario>()
                 .HasDiscriminator(u => u.Rol)
                 .HasValue<Cliente>(RolUsuario.Cliente)
                 .HasValue<Administrador>(RolUsuario.Administrador)
                 .HasValue<Encargado>(RolUsuario.Encargado);
 
-            // Email único
             modelBuilder.Entity<Usuario>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
@@ -62,12 +48,10 @@ namespace AlquileresApp.Data
                 .Property(p => p.Localidad)
                 .IsRequired();
 
-            // Configuración de Propiedad
             modelBuilder.Entity<Propiedad>()
                 .Property(p => p.TipoPago)
                 .IsRequired();
 
-            // Configuración de Reserva
             modelBuilder.Entity<Reserva>()
                 .HasOne(r => r.Cliente)
                 .WithMany(c => c.Reservas)
@@ -84,22 +68,19 @@ namespace AlquileresApp.Data
                 .HasForeignKey(r => r.PropiedadId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
-            // Configuración de Tarjeta
             modelBuilder.Entity<Tarjeta>()
                 .HasOne<Cliente>()
                 .WithMany()
                 .HasForeignKey(t => t.ClienteId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Relación Uno a Muchos: Propiedad con Comentarios
             modelBuilder.Entity<Propiedad>()
                 .HasMany(p => p.Comentarios)
                 .WithOne(c => c.Propiedad)
                 .HasForeignKey(c => c.PropiedadId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-                    modelBuilder.Entity<Usuario>()
+            modelBuilder.Entity<Usuario>()
                 .HasMany(u => u.ComentariosRealizados)
                 .WithOne(c => c.Usuario)
                 .HasForeignKey(c => c.UsuarioId)
@@ -115,33 +96,7 @@ namespace AlquileresApp.Data
                 .HasOne(c => c.Usuario)
                 .WithMany(u => u.CalificacionesRealizadas)
                 .HasForeignKey(c => c.UsuarioId)
-                .OnDelete(DeleteBehavior.SetNull); 
-        }
-
-        public void EnsureDatabaseCreated()
-        {
-            try
-            {
-                var path = DbPath;
-                Console.WriteLine($"Intentando crear/verificar base de datos en: {path}");
-                Console.WriteLine($"Directorio actual: {Directory.GetCurrentDirectory()}");
-                
-                var directory = Path.GetDirectoryName(path);
-                if (!Directory.Exists(directory))
-                {
-                    Console.WriteLine($"Creando directorio: {directory}");
-                    Directory.CreateDirectory(directory!);
-                }
-
-                var created = Database.EnsureCreated();
-                Console.WriteLine($"Base de datos {(created ? "creada" : "ya existía")} en {path}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al crear/verificar la base de datos: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                throw;
-            }
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
