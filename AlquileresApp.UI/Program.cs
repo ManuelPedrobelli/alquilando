@@ -59,6 +59,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddAuthorizationCore();
 
 // --- Inyecciones de servicios propios ---
+builder.Services.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
 builder.Services.AddScoped<IServicioHashPassword, ServicioHashPassword>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
