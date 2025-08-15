@@ -133,19 +133,19 @@ builder.Services.AddScoped<CasoDeUsoListarPropiedad>();
 builder.Services.AddScoped<CasoDeUsoListarPropiedades>();
 builder.Services.AddScoped<CasoDeUsoListarPropiedadesDestacadas>();
 builder.Services.AddScoped<CasoDeUsoModificarPropiedad>();
-//builder.Services.AddScoped<CasoDeUsoNoHabitable>();
+builder.Services.AddScoped<CasoDeUsoMarcarPropiedadComoNoHabitable>();
 builder.Services.AddScoped<CasoDeUsoObtenerPropiedad>();
 builder.Services.AddScoped<CasoDeUsoObtenerPropiedades>();
 
 //CU RESERVA
 builder.Services.AddScoped<CasoDeUsoCancelarReserva>();
 builder.Services.AddScoped<CasoDeUsoCrearReserva>();
-//builder.Services.AddScoped<CasoDeUsoInformarCheckOut>();
+builder.Services.AddScoped<CasoDeUsoInformarCheckOut>();
 builder.Services.AddScoped<CasoDeUsoListarMisReservas>();
 builder.Services.AddScoped<CasoDeUsoListarReservasAdm>();
 builder.Services.AddScoped<CasoDeUsoModificarReserva>();
 builder.Services.AddScoped<CasoDeUsoObtenerReserva>();
-//builder.Services.AddScoped<CasoDeUsoRegistrarCheckOut>();
+builder.Services.AddScoped<CasoDeUsoRegistrarCheckout>();
 builder.Services.AddScoped<CasoDeUsoVerReserva>();
 builder.Services.AddScoped<CasoDeUsoVisualizarReserva>();
 
