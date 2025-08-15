@@ -68,6 +68,7 @@ builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
 builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
+builder.Services.AddScoped<INotificadorEmail, NotificadorEmail>();
 builder.Services.AddScoped<IFechaReservaValidador, FechaReservaValidador>();
 builder.Services.AddScoped<ServicioAutenticacion>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
