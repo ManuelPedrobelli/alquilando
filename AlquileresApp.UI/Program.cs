@@ -68,6 +68,7 @@ builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
 builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
+builder.Services.AddScoped<IFechaReservaValidador, FechaReservaValidador>();
 builder.Services.AddScoped<ServicioAutenticacion>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
 builder.Services.AddScoped<ServicioSesion>();
@@ -76,6 +77,7 @@ builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<ServicioCookies>();
 builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
 builder.Services.AddScoped<CasoDeUsoListarPropiedadesDestacadas>();
+
 
 //CU ADMINISTRADOR
 builder.Services.AddScoped<CasoDeUsoEliminarEncargado>();
