@@ -68,7 +68,15 @@ builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
 builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
-builder.Services.AddScoped<INotificadorEmail, NotificadorEmail>();
+builder.Services.AddScoped<INotificadorEmail>(sp => 
+    new NotificadorEmail(
+        "tuemail@gmail.com",   // remitente
+        "tuclave",             // clave de la app o contraseña
+        "smtp.gmail.com",      // servidor opcional
+        587                    // puerto opcional
+    )
+);
+
 builder.Services.AddScoped<IFechaReservaValidador, FechaReservaValidador>();
 builder.Services.AddScoped<ServicioAutenticacion>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
