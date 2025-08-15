@@ -69,6 +69,7 @@ builder.Services.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
 builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<ServicioCookies>();
 builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
+builder.Services.AddScoped<CasoDeUsoMostrarCalificacion>();
 
 // Agregá el resto de tus servicios e inyecciones igual que antes
 // ...
