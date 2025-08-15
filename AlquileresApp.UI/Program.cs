@@ -61,6 +61,7 @@ builder.Services.AddAuthorizationCore();
 // --- Inyecciones de servicios propios ---
 builder.Services.AddScoped<IServicioHashPassword, ServicioHashPassword>();
 builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
+builder.Services.AddScoped<IPromocionRepositorio, PromocionRepositorio>();
 builder.Services.AddScoped<IReservaRepositorio, ReservaRepositorio>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
