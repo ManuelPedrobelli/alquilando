@@ -128,7 +128,7 @@ builder.Services.AddScoped<CasoDeUsoObtenerPromocion>();
 builder.Services.AddScoped<CasoDeUsoAgregarPropiedad>();
 builder.Services.AddScoped<CasoDeUsoCalcularPrecioConPromocion>();
 builder.Services.AddScoped<CasoDeUsoEliminarPropiedad>();
-//builder.Services.AddScoped<CasoDeUsoListarFiltrado>();
+builder.Services.AddScoped<CasoDeUsoListarPropiedadesFiltrado>();
 builder.Services.AddScoped<CasoDeUsoListarPropiedad>();
 builder.Services.AddScoped<CasoDeUsoListarPropiedades>();
 builder.Services.AddScoped<CasoDeUsoListarPropiedadesDestacadas>();
