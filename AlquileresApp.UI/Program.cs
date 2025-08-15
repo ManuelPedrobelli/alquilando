@@ -60,7 +60,10 @@ builder.Services.AddAuthorizationCore();
 
 // --- Inyecciones de servicios propios ---
 builder.Services.AddScoped<IServicioHashPassword, ServicioHashPassword>();
+builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
+builder.Services.AddScoped<IReservaRepositorio, ReservaRepositorio>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
 builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
 builder.Services.AddScoped<ServicioAutenticacion>();
@@ -70,7 +73,81 @@ builder.Services.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
 builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<ServicioCookies>();
 builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
-builder.Services.AddScoped<CasoDeUsoMostrarCalificacion>(); 
+builder.Services.AddScoped<CasoDeUsoListarPropiedadesDestacadas>();
+
+//CU ADMINISTRADOR
+builder.Services.AddScoped<CasoDeUsoEliminarEncargado>();
+builder.Services.AddScoped<CasoDeUsoListarEncargados>();
+builder.Services.AddScoped<CasoDeUsoRegistrarEncargado>();
+
+//CU CALIFICACION
+builder.Services.AddScoped<CasoDeUsoAgregarCalificacion>();
+builder.Services.AddScoped<CasoDeUsoMostrarCalificacion>();
+
+//CU COMENTARIO
+builder.Services.AddScoped<CasoDeUsoAgregarComentario>();
+builder.Services.AddScoped<CasoDeUsoListarComentarios>();
+builder.Services.AddScoped<CasoDeUsoOcultarComentario>();
+
+//CU CONTACTAR ADMIN
+builder.Services.AddScoped<CasoDeUsoContactarAdmin>();
+
+//CU IMAGEN
+builder.Services.AddScoped<CasoDeUsoCargarImagen>();
+builder.Services.AddScoped<CasoDeUsoEliminarImagen>();
+builder.Services.AddScoped<CasoDeUsoMostrarImagenes>();
+
+//CU PREGUNTAS FRECUENTES
+builder.Services.AddScoped<CasoDeUsoCrearPreguntaFrecuente>();
+builder.Services.AddScoped<CasoDeUsoEliminarPreguntaFrecuente>();
+builder.Services.AddScoped<CasoDeUsoModificarPreguntaFrecuente>();
+builder.Services.AddScoped<CasoDeUsoMostrarPreguntasFrecuentes>();
+
+//CU PROMOCION
+builder.Services.AddScoped<CasoDeUsoCrearPromocion>();
+builder.Services.AddScoped<CasoDeUsoEliminarPromocion>();
+builder.Services.AddScoped<CasoDeUsoListarPromociones>();
+builder.Services.AddScoped<CasoDeUsoListarPromocionesActivas>();
+builder.Services.AddScoped<CasoDeUsoModificarPromocion>();
+builder.Services.AddScoped<CasoDeUsoObtenerPromocion>();
+
+//CU PROPIEDAD
+builder.Services.AddScoped<CasoDeUsoAgregarPropiedad>();
+builder.Services.AddScoped<CasoDeUsoCalcularPrecioConPromocion>();
+builder.Services.AddScoped<CasoDeUsoEliminarPropiedad>();
+//builder.Services.AddScoped<CasoDeUsoListarFiltrado>();
+builder.Services.AddScoped<CasoDeUsoListarPropiedad>();
+builder.Services.AddScoped<CasoDeUsoListarPropiedades>();
+builder.Services.AddScoped<CasoDeUsoListarPropiedadesDestacadas>();
+builder.Services.AddScoped<CasoDeUsoModificarPropiedad>();
+//builder.Services.AddScoped<CasoDeUsoNoHabitable>();
+builder.Services.AddScoped<CasoDeUsoObtenerPropiedad>();
+builder.Services.AddScoped<CasoDeUsoObtenerPropiedades>();
+
+//CU RESERVA
+builder.Services.AddScoped<CasoDeUsoCancelarReserva>();
+builder.Services.AddScoped<CasoDeUsoCrearReserva>();
+//builder.Services.AddScoped<CasoDeUsoInformarCheckOut>();
+builder.Services.AddScoped<CasoDeUsoListarMisReservas>();
+builder.Services.AddScoped<CasoDeUsoListarReservasAdm>();
+builder.Services.AddScoped<CasoDeUsoModificarReserva>();
+builder.Services.AddScoped<CasoDeUsoObtenerReserva>();
+//builder.Services.AddScoped<CasoDeUsoRegistrarCheckOut>();
+builder.Services.AddScoped<CasoDeUsoVerReserva>();
+builder.Services.AddScoped<CasoDeUsoVisualizarReserva>();
+
+//CU TARJETA
+builder.Services.AddScoped<CasoDeUsoEliminarTarjeta>();
+builder.Services.AddScoped<CasoDeUsoModificarTarjeta>();
+builder.Services.AddScoped<CasoDeUsoPagar>();
+builder.Services.AddScoped<CasoDeUsoRegistrarTarjeta>();
+builder.Services.AddScoped<CasoDeUsoVisualizarTarjeta>();
+
+//CU USUARIO
+builder.Services.AddScoped<CasoDeUsoIniciarSesion>();
+builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
+builder.Services.AddScoped<CasoDeUsoRegistrarUsuario>();
+
 
 
 // Agregá el resto de tus servicios e inyecciones igual que antes
