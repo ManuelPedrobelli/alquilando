@@ -61,6 +61,7 @@ builder.Services.AddAuthorizationCore();
 // --- Inyecciones de servicios propios ---
 builder.Services.AddScoped<IServicioHashPassword, ServicioHashPassword>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
 builder.Services.AddScoped<ServicioAutenticacion>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
@@ -69,7 +70,8 @@ builder.Services.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
 builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
 builder.Services.AddScoped<ServicioCookies>();
 builder.Services.AddScoped<CasoDeUsoCerrarSesion>();
-builder.Services.AddScoped<CasoDeUsoMostrarCalificacion>();
+builder.Services.AddScoped<CasoDeUsoMostrarCalificacion>(); 
+
 
 // Agregá el resto de tus servicios e inyecciones igual que antes
 // ...
