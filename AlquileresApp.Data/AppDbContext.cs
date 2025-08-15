@@ -58,6 +58,14 @@ namespace AlquileresApp.Data
                .HasMany(p => p.Propiedades)
                .WithMany(p => p.Promociones);
 
+            modelBuilder.Entity<Promocion>(entity =>
+            {
+                entity.Property(p => p.FechaInicio).HasColumnType("timestamptz");
+                entity.Property(p => p.FechaFin).HasColumnType("timestamptz");
+                entity.Property(p => p.FechaInicioReserva).HasColumnType("timestamptz");
+                entity.Property(p => p.FechaFinReserva).HasColumnType("timestamptz");
+            });
+
             modelBuilder.Entity<Reserva>()
                 .HasOne(r => r.Propiedad)
                 .WithMany(p => p.Reservas)
