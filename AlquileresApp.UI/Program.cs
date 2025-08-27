@@ -60,13 +60,16 @@ builder.Services.AddAuthorizationCore();
 
 // --- Inyecciones de servicios propios ---
 builder.Services.AddScoped<IServicioHashPassword, ServicioHashPassword>();
-builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
-builder.Services.AddScoped<ITarjetaRepositorio, TarjetaRepositorio>();
-builder.Services.AddScoped<IPromocionRepositorio, PromocionRepositorio>();
-builder.Services.AddScoped<IReservaRepositorio, ReservaRepositorio>();
-builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
-builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
 builder.Services.AddScoped<ICalificacionRepositorio, CalificacionRepositorio>();
+builder.Services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
+builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
+builder.Services.AddScoped<IImagenesRepositorio, ImagenesRepositorio>();
+builder.Services.AddScoped<IPreguntasFrecuentesRepositorio, PreguntasFrecuentesRepositorio>();
+builder.Services.AddScoped<IPromocionRepositorio, PromocionRepositorio>();
+builder.Services.AddScoped<IPropiedadRepositorio, PropiedadesRepositorio>();
+builder.Services.AddScoped<IReservaRepositorio, ReservaRepositorio>();
+builder.Services.AddScoped<ITarjetaRepositorio, TarjetaRepositorio>();
+builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IUsuarioValidador, UsuarioValidador>();
 builder.Services.AddScoped<INotificadorEmail>(sp => 
     new NotificadorEmail(
@@ -77,7 +80,10 @@ builder.Services.AddScoped<INotificadorEmail>(sp =>
     )
 );
 
+//VALIDADORES
+builder.Services.AddScoped<IPropiedadValidador, PropiedadValidador>();
 builder.Services.AddScoped<IFechaReservaValidador, FechaReservaValidador>();
+builder.Services.AddScoped<ITarjetaValidador, TarjetaValidador>();
 builder.Services.AddScoped<ServicioAutenticacion>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ServicioAutenticacion>());
 builder.Services.AddScoped<ServicioSesion>();
