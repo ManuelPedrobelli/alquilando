@@ -219,4 +219,18 @@ app.MapGet("/Logout", async (HttpContext context) =>
 
 app.MapFallbackToPage("/_Host");
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+
+    // Aplica migraciones (si todavía no están aplicadas)
+    context.Database.Migrate();
+
+    // Ejecuta el seed
+    SeedData.Initialize(context);
+}
+
+
+
 app.Run();
